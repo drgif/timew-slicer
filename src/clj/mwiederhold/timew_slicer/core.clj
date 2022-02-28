@@ -11,7 +11,8 @@
 
     ;; Routes
     [mwiederhold.timew-slicer.web.routes.api]
-    )
+    
+    [mwiederhold.timew-slicer.web.routes.pages])
   (:gen-class))
 
 ;; log uncaught exceptions in threads
