@@ -14,14 +14,9 @@
     </nav>
     <section>
         <div class="content">
-            <h2>Welcome to timew-slicer</h2>
-            {% csrf-field %}
+            <h2>Here are your generated time slices</h2>
 
-            <form method="GET" action="/show">
-                <label>Choose a month:</label>
-                <input type="month" id="selected-month" name="selected-month" />
-                <button type="submit" Start>Start</button>
-            </form>
+            {{ request }}
         </div>
     </section>
 </body>

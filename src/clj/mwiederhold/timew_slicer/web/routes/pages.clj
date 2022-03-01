@@ -16,9 +16,13 @@
 (defn home [request]
   (layout/render request "home.html"))
 
+(defn show [request]
+  (layout/render request "show.html" {:request (str request)}))
+
 ;; Routes
 (defn page-routes [_opts]
-  [["/" {:get home}]])
+  [["/" {:get home}]
+   ["/show" {:get show}]])
 
 (defn route-data [opts]
   (merge
