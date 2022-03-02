@@ -11,6 +11,7 @@
 
 (defn init-selmer!
   []
+  (parser/cache-off!)
   (parser/add-tag! :csrf-field (fn [_ _] (anti-forgery-field))))
 
 (defn render

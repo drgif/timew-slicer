@@ -17,7 +17,7 @@
   (layout/render request "home.html"))
 
 (defn show [request]
-  (layout/render request "show.html" {:request (str request)}))
+  (layout/render request "show.html" {:request (str (:params  request))}))
 
 ;; Routes
 (defn page-routes [_opts]
