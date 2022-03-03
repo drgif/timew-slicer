@@ -1,11 +1,12 @@
 (ns mwiederhold.timew-slicer.web.routes.pages
   (:require
-    [mwiederhold.timew-slicer.web.middleware.exception :as exception]
-    [mwiederhold.timew-slicer.web.pages.layout :as layout]
-    [integrant.core :as ig]
-    [reitit.ring.middleware.muuntaja :as muuntaja]
-    [reitit.ring.middleware.parameters :as parameters]
-    [ring.middleware.anti-forgery :refer [wrap-anti-forgery]]))
+   [mwiederhold.timew-slicer.logic :as logic]
+   [mwiederhold.timew-slicer.web.middleware.exception :as exception]
+   [mwiederhold.timew-slicer.web.pages.layout :as layout]
+   [integrant.core :as ig]
+   [reitit.ring.middleware.muuntaja :as muuntaja]
+   [reitit.ring.middleware.parameters :as parameters]
+   [ring.middleware.anti-forgery :refer [wrap-anti-forgery]]))
 
 (defn wrap-page-defaults []
   (let [error-page (layout/error-page
@@ -17,7 +18,7 @@
   (layout/render request "home.html"))
 
 (defn show [request]
-  (layout/render request "show.html" {:request (str (:params  request))}))
+  (layout/render request "show.html" {:data (logic/time-slices nil nil)}))
 
 ;; Routes
 (defn page-routes [_opts]

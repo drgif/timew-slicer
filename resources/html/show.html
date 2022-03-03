@@ -15,7 +15,16 @@
     <section>
         <div class="content">
             <h2>Here are your generated time slices</h2>
-            {{ request }}
+            {% for day in data %}
+            <p>
+                <h4>{{ day.date }}</h4>
+                {% for slice in day.slices %}
+                <li>
+                    {{ slice.start }} - {{ slice.end }}: {{ slice.tags|join:", " }}
+                </li>
+                {% endfor %}
+            </p>
+            {% endfor %}
         </div>
     </section>
 </body>

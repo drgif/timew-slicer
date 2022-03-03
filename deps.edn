@@ -1,9 +1,10 @@
 {:paths   ["src/clj"
+           "src/cljc"
            "resources"]
 
  :deps    {org.clojure/clojure {:mvn/version "1.10.3"}
            ;; Non-Kit deps
-           tick/tick {:mvn/version "0.4.32"}
+           tick/tick {:mvn/version "0.5.0-RC1"}
 
            ;; Routing
            metosin/reitit {:mvn/version "0.5.15"}
