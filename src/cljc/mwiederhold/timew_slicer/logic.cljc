@@ -16,15 +16,29 @@
                   ":"
                   (subs s 13))))
 
-(defn- parse [entry]
-  (let [start-string (instant-of (subs entry 4 20))
-        end-string (instant-of (subs entry 23 39))]
-  {:date (t/date start-string)
-   :start-time (t/time start-string)
-   :end-time (t/time end-string)
-   :tags (subs entry 42)}))
+(defn- parse [line]
+  (let [start-string (instant-of (subs line 4 20))
+        end-string (instant-of (subs line 23 39))]
+    {:date (t/date start-string)
+     :start-time (t/time start-string)
+     :end-time (t/time end-string)
+     :tags (subs line 42)}))
 
-(defn time-slices
+(defn- assoc-date-from-first [entries]
+  {:date-str (:date (first entries))
+   :entries entries})
+
+;; (defn- assoc-start-of-day [entries]
+;;   (let [start-time (apply min (map :start-time entries))]))
+
+(defn- slice-day
+  "Slices a day"
+  [tracked-times]
+  (let [parsed-times (map parse tracked-times)]
+    (-> parsed-times
+        assoc-date-from-first)))
+
+(defn slice-month
   "Returns all slices for a month, takes and returns tick values"
   [tracked-times]
   [{:date "2022-02-24"
@@ -63,4 +77,39 @@
               "inc 20220214T140000Z - 20220214T150000Z # AIXTRON"
               "inc 20220214T150000Z - 20220214T170314Z # VT"])
   (parse (first times))
-  (time-slices nil))
+  (slice-month nil)
+  (slice-day times)
+  [{:date-str "2022-02-01"
+    :start-of-day (t/new-time 8 30)
+    :slices [{:duration (t/new-duration (* 60 60 3) :seconds)
+              :start (t/new-time 8 30)
+              :start-str "08:30"
+              :end (t/new-time 11 30)
+              :end-str "11:30"
+              :tags ["HENNECKE"]}
+             {:duration (t/new-duration (* 60 60 2) :seconds)
+              :start (t/new-time 12 30)
+              :start-str "12:30"
+              :end (t/new-time 14 30)
+              :end-str "14:30"
+              :tags ["HENNECKE"]}
+             {:duration (t/new-duration (* 60 150) :seconds)
+              :start (t/new-time 14 30)
+              :start-str "14:30"
+              :end (t/new-time 17 0)
+              :end-str "17:00"
+              :tags ["VT"]}]
+    :breaks [{:start (t/new-time 11 30)
+              :end (t/new-time 12 30)}]
+    :available [{:start (t/new-time 8 30)
+                 :end (t/new-time 11 30)}
+                {:start (t/new-time 12 30)
+                 :end (t/new-time 17 0)}]
+    ;; :totals [{:tags ["HENNECKE"]
+    ;;           :duration (t/new-duration (* 60 60 5) :seconds)}
+    ;;          {:tags ["VT"]
+    ;;           :duration (t/new-duration (* 60 150) :seconds)}]
+    :totals [{:tags ["HENNECKE"]
+              :duration (t/new-duration 0 :seconds)}
+             {:tags ["VT"]
+              :duration (t/new-duration 0 :seconds)}]}])

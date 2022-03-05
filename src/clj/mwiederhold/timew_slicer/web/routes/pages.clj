@@ -18,7 +18,7 @@
   (layout/render request "home.html"))
 
 (defn show [request]
-  (layout/render request "show.html" {:data (logic/time-slices nil nil)}))
+  (layout/render request "show.html" {:data (logic/slice-month nil nil)}))
 
 ;; Routes
 (defn page-routes [_opts]
