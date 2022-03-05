@@ -16,6 +16,17 @@
                   ":"
                   (subs s 13))))
 
+(defn- round-time
+  "Rounds a tick time to the nearest (e.g. 15min) step"
+  [time]
+  (let [original-hour (t/hour time)
+        rounded-minutes (* (Math/round (float (/ (t/minute time) 15))) 15)]
+    (if (= rounded-minutes 60)
+      (if (= original-hour 23)
+        (t/new-time original-hour 45)
+        (t/new-time (+ original-hour 1) 0))
+      (t/new-time original-hour rounded-minutes))))
+
 (defn- parse [line]
   (let [start-string (instant-of (subs line 4 20))
         end-string (instant-of (subs line 23 39))]
@@ -24,19 +35,22 @@
      :end-time (t/time end-string)
      :tags (subs line 42)}))
 
-(defn- assoc-date-from-first [entries]
-  {:date-str (:date (first entries))
-   :entries entries})
+(defn- assoc-date-from-first [m]
+  (assoc m :date-str (str (:date (first (:tracked-times m))))))
 
-;; (defn- assoc-start-of-day [entries]
-;;   (let [start-time (apply min (map :start-time entries))]))
+(defn- assoc-start-of-day [m]
+  (assoc m :start-of-day (->> (:tracked-times m)
+                              (map :start-time)
+                              (sort t/<)
+                              (first)
+                              (round-time))))
 
 (defn- slice-day
   "Slices a day"
-  [tracked-times]
-  (let [parsed-times (map parse tracked-times)]
-    (-> parsed-times
-        assoc-date-from-first)))
+  [parsed-times]
+  (-> {:tracked-times parsed-times}
+      assoc-date-from-first
+      assoc-start-of-day))
 
 (defn slice-month
   "Returns all slices for a month, takes and returns tick values"
@@ -76,9 +90,14 @@
               "inc 20220214T131500Z - 20220214T140000Z # AO"
               "inc 20220214T140000Z - 20220214T150000Z # AIXTRON"
               "inc 20220214T150000Z - 20220214T170314Z # VT"])
+  (def single-day-times ["inc 20220201T083653Z - 20220201T103849Z # VT"
+                         "inc 20220201T083147Z - 20220201T083653Z # HENNECKE"
+                         "inc 20220201T105140Z - 20220201T112701Z # VT"
+                         "inc 20220201T103849Z - 20220201T105140Z # HENNECKE"
+                         "inc 20220201T123429Z - 20220201T170949Z # HENNECKE"])
   (parse (first times))
   (slice-month nil)
-  (slice-day times)
+  (clojure.pprint/pprint (slice-day (map parse single-day-times)))
   [{:date-str "2022-02-01"
     :start-of-day (t/new-time 8 30)
     :slices [{:duration (t/new-duration (* 60 60 3) :seconds)
@@ -99,12 +118,15 @@
               :end (t/new-time 17 0)
               :end-str "17:00"
               :tags ["VT"]}]
-    :breaks [{:start (t/new-time 11 30)
-              :end (t/new-time 12 30)}]
-    :available [{:start (t/new-time 8 30)
-                 :end (t/new-time 11 30)}
-                {:start (t/new-time 12 30)
-                 :end (t/new-time 17 0)}]
+    ;; :breaks [{:duration (t/new-duration (* 60 60) :seconds)
+    ;;           :start (t/new-time 11 30)
+    ;;           :end (t/new-time 12 30)}]
+    :breaks []
+    ;; :available [{:start (t/new-time 8 30)
+    ;;              :end (t/new-time 11 30)}
+    ;;             {:start (t/new-time 12 30)
+    ;;              :end (t/new-time 17 0)}]
+    :available []
     ;; :totals [{:tags ["HENNECKE"]
     ;;           :duration (t/new-duration (* 60 60 5) :seconds)}
     ;;          {:tags ["VT"]
